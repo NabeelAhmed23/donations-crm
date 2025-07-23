@@ -42,21 +42,6 @@ export default function ManagePaymentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const checkAccessAndFetch = useCallback(() => {
-    if (status === "loading") return;
-
-    if (!session?.user || !["MANAGER", "VICE_MANAGER", "ADMIN"].includes(session.user.role)) {
-      router.push("/dashboard");
-      return;
-    }
-
-    fetchPendingPayments();
-  }, [session, status, router, fetchPendingPayments]);
-
-  useEffect(() => {
-    checkAccessAndFetch();
-  }, [checkAccessAndFetch]);
-
   const fetchPendingPayments = useCallback(async () => {
     try {
       const response = await fetch("/api/payments/pending");
@@ -79,6 +64,21 @@ export default function ManagePaymentsPage() {
       setLoading(false);
     }
   }, [router]);
+
+  const checkAccessAndFetch = useCallback(() => {
+    if (status === "loading") return;
+
+    if (!session?.user || !["MANAGER", "VICE_MANAGER", "ADMIN"].includes(session.user.role)) {
+      router.push("/dashboard");
+      return;
+    }
+
+    fetchPendingPayments();
+  }, [session, status, router, fetchPendingPayments]);
+
+  useEffect(() => {
+    checkAccessAndFetch();
+  }, [checkAccessAndFetch]);
 
   const handleApproval = async (paymentId: string, action: "approve" | "reject", notes?: string) => {
     setProcessingPaymentId(paymentId);

@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { donationId: string } }
+  { params }: { params: Promise<{ donationId: string }> }
 ) {
   try {
     const session = await auth();
@@ -12,7 +12,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { donationId } = params;
+    const { donationId } = await params;
 
     // Get user donations for this donation with payment data
     const userDonations = await prisma.userDonation.findMany({

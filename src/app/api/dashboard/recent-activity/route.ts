@@ -179,7 +179,7 @@ export async function GET(request: NextRequest) {
         amount: Number(payment.amount),
         status: payment.status,
         createdAt: payment.approvedAt!,
-        user: payment.approvedBy,
+        user: payment.approvedBy || undefined,
         donation: payment.donation,
       });
     });

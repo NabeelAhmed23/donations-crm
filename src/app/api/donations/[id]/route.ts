@@ -7,20 +7,26 @@ const updateDonationSchema = z.object({
   name: z.string().min(1, "Donation name is required").optional(),
   description: z.string().optional(),
   type: z.enum(["COMPULSORY", "NON_COMPULSORY"]).optional(),
-  targetAmount: z.number().positive("Target amount must be positive").optional(),
-  dueDate: z.string().optional().transform((str) => str ? new Date(str) : undefined),
+  targetAmount: z
+    .number()
+    .positive("Target amount must be positive")
+    .optional(),
+  dueDate: z
+    .string()
+    .optional()
+    .transform((str) => (str ? new Date(str) : undefined)),
   year: z.number().int().min(2020).max(2030).optional(),
   managerId: z.string().min(1, "Manager is required").optional(),
 });
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
     const { id } = await params;
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -72,12 +78,10 @@ export async function GET(
     });
 
     const totalPaidAmount = Number(totalPaid._sum.amount || 0);
-    const targetAmount = Number(donation.targetAmount);
-    
+
     const donationWithStats = {
       ...donation,
       totalPaid: totalPaidAmount,
-      remainingAmount: targetAmount - totalPaidAmount,
     };
 
     return NextResponse.json(donationWithStats);
@@ -92,12 +96,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
     const { id } = await params;
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -126,9 +130,9 @@ export async function PUT(
 
     if (validatedData.managerId) {
       const manager = await prisma.user.findUnique({
-        where: { 
+        where: {
           id: validatedData.managerId,
-          role: { in: ["MANAGER", "VICE_MANAGER", "ADMIN"] }
+          role: { in: ["MANAGER", "VICE_MANAGER", "ADMIN"] },
         },
       });
 
@@ -174,12 +178,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
     const { id } = await params;
-    
+
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

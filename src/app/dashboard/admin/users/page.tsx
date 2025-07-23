@@ -39,21 +39,6 @@ export default function AdminUsersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  const checkAccessAndFetch = useCallback(() => {
-    if (status === "loading") return;
-    
-    if (!session?.user || session.user.role !== "ADMIN") {
-      router.push("/dashboard");
-      return;
-    }
-
-    fetchUsers();
-  }, [session, status, router, fetchUsers]);
-
-  useEffect(() => {
-    checkAccessAndFetch();
-  }, [checkAccessAndFetch]);
-
   const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch("/api/users");
@@ -76,6 +61,21 @@ export default function AdminUsersPage() {
       setLoading(false);
     }
   }, [router]);
+
+  const checkAccessAndFetch = useCallback(() => {
+    if (status === "loading") return;
+    
+    if (!session?.user || session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+
+    fetchUsers();
+  }, [session, status, router, fetchUsers]);
+
+  useEffect(() => {
+    checkAccessAndFetch();
+  }, [checkAccessAndFetch]);
 
   const handleEditUser = (user: User) => {
     router.push(`/dashboard/admin/users/${user.id}`);

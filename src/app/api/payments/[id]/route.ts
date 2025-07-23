@@ -16,7 +16,7 @@ const approvePaymentSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -58,7 +58,6 @@ export async function GET(
             name: true,
             type: true,
             year: true,
-            targetAmount: true,
           },
         },
         approvedBy: {
@@ -91,7 +90,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -137,7 +136,7 @@ export async function PUT(
       }
 
       const updatedPayment = await prisma.payment.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           status: action === "approve" ? "APPROVED" : "REJECTED",
           approvedById: session.user.id,
@@ -188,16 +187,9 @@ export async function PUT(
 
       const validatedData = updatePaymentSchema.parse(body);
 
-      // Validate amount against donation target if provided
-      if (validatedData.amount && validatedData.amount > Number(payment.donation.targetAmount)) {
-        return NextResponse.json(
-          { error: "Payment amount cannot exceed target amount" },
-          { status: 400 }
-        );
-      }
 
       const updatedPayment = await prisma.payment.update({
-        where: { id: params.id },
+        where: { id },
         data: validatedData,
         include: {
           user: {
@@ -239,16 +231,17 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
+    const { id } = await params;
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const payment = await prisma.payment.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!payment) {
@@ -271,7 +264,7 @@ export async function DELETE(
     }
 
     await prisma.payment.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ message: "Payment deleted successfully" });

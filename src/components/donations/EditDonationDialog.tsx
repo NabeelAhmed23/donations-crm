@@ -33,7 +33,6 @@ interface EditDonationFormValues {
   name: string;
   description: string;
   type: "COMPULSORY" | "NON_COMPULSORY";
-  targetAmount: string;
   dueDate: string;
   year: string;
   managerId: string;
@@ -73,8 +72,9 @@ export default function EditDonationDialog({
         name: donation.name,
         description: donation.description || "",
         type: donation.type as "COMPULSORY" | "NON_COMPULSORY",
-        targetAmount: donation.targetAmount?.toString() || "",
-        dueDate: donation.dueDate ? new Date(donation.dueDate).toISOString().split('T')[0] : "",
+        dueDate: donation.dueDate
+          ? new Date(donation.dueDate).toISOString().split("T")[0]
+          : "",
         year: donation.year.toString(),
         managerId: donation.manager?.id || "",
       });
@@ -104,7 +104,6 @@ export default function EditDonationDialog({
         name: values.name,
         description: values.description,
         type: values.type,
-        targetAmount: values.targetAmount ? parseFloat(values.targetAmount) : undefined,
         dueDate: values.dueDate || undefined,
         year: parseInt(values.year),
         managerId: values.managerId,
@@ -171,7 +170,10 @@ export default function EditDonationDialog({
                   <FormItem>
                     <FormLabel>Type *</FormLabel>
                     <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
@@ -207,58 +209,25 @@ export default function EditDonationDialog({
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="targetAmount"
-                rules={{
-                  validate: (value) => {
-                    if (form.getValues("type") === "COMPULSORY" && !value) {
-                      return "Target Amount is required for compulsory donations";
-                    }
-                    return true;
-                  },
-                }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Target Amount (Rs){" "}
-                      {form.watch("type") === "COMPULSORY" ? "*" : ""}
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        step="0.01"
-                        disabled={form.watch("type") === "NON_COMPULSORY"}
-                        required={form.watch("type") === "COMPULSORY"}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="year"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Year *</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min="2020"
-                        max="2030"
-                        required
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Year *</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      type="number"
+                      min="2020"
+                      max="2030"
+                      required
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -275,8 +244,7 @@ export default function EditDonationDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Due Date{" "}
-                      {form.watch("type") === "COMPULSORY" ? "*" : ""}
+                      Due Date {form.watch("type") === "COMPULSORY" ? "*" : ""}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -298,7 +266,10 @@ export default function EditDonationDialog({
                   <FormItem>
                     <FormLabel>Manager *</FormLabel>
                     <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select manager" />
                         </SelectTrigger>

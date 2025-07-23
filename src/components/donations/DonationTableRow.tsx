@@ -23,11 +23,7 @@ export default function DonationTableRow({
   // Safe date parsing
   const dueDateObj = donation.dueDate ? new Date(donation.dueDate) : null;
   const isOverdue = dueDateObj ? dueDateObj < new Date() : false;
-  const isCompleted =
-    typeof donation.totalPaid === "number" &&
-    typeof donation.targetAmount === "number"
-      ? donation.totalPaid >= donation.targetAmount
-      : false;
+  const isCompleted = false; // No target amount defined in schema
 
   // Safe event handlers
   const handleEdit = () => {
@@ -66,20 +62,14 @@ export default function DonationTableRow({
         </Badge>
       </TableCell>
       <TableCell>
-        {typeof donation.targetAmount === "number"
-          ? `$${donation.targetAmount.toFixed(2)}`
-          : "-"}
+        {"N/A"}
       </TableCell>
       <TableCell className="w-48">
         <DonationProgressBar
           totalPaid={
             typeof donation.totalPaid === "number" ? donation.totalPaid : 0
           }
-          targetAmount={
-            typeof donation.targetAmount === "number"
-              ? donation.targetAmount
-              : 1
-          }
+          targetAmount={1}
         />
       </TableCell>
       <TableCell>

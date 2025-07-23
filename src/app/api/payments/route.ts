@@ -106,44 +106,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if payment amount is reasonable
-    if (
-      donation.type === "COMPULSORY" &&
-      validatedData.amount > Number(donation.targetAmount)
-    ) {
-      return NextResponse.json(
-        { error: "Payment amount cannot exceed target amount" },
-        { status: 400 }
-      );
-    }
 
-    // Get current total approved payments for this donation by this user
-    const userApprovedPayments = await prisma.payment.aggregate({
-      where: {
-        donationId: validatedData.donationId,
-        userId: session.user.id,
-        status: "APPROVED",
-      },
-      _sum: {
-        amount: true,
-      },
-    });
 
-    const currentTotal = Number(userApprovedPayments._sum.amount || 0);
-    const targetAmount = Number(donation.targetAmount);
-
-    // For compulsory donations, prevent overpayment
-    if (
-      donation.type === "COMPULSORY" &&
-      currentTotal + validatedData.amount > targetAmount
-    ) {
-      return NextResponse.json(
-        {
-          error: `Payment would exceed target amount. You have already paid Rs ${currentTotal} out of Rs ${targetAmount}`,
-        },
-        { status: 400 }
-      );
-    }
 
     const payment = await prisma.payment.create({
       data: {

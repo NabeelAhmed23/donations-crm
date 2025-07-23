@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const donationWhereClause: {
       isActive: boolean;
       year?: number;
-      type?: string;
+      type?: "COMPULSORY" | "NON_COMPULSORY";
     } = {
       isActive: true,
     };
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (year) {
       donationWhereClause.year = parseInt(year);
     }
-    if (type) {
+    if (type && (type === "COMPULSORY" || type === "NON_COMPULSORY")) {
       donationWhereClause.type = type;
     }
 
