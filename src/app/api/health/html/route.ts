@@ -1,18 +1,20 @@
-import { NextResponse } from 'next/server'
-import { checkDatabaseHealth } from '@/lib/db-health'
+import { checkDatabaseHealth } from "@/lib/db-health";
 
 // HTML health check page for browsers and monitoring tools
-export const runtime = 'nodejs'
+export const runtime = "nodejs";
 
 export async function GET() {
   try {
-    const dbHealth = await checkDatabaseHealth()
-    const timestamp = new Date().toISOString()
-    
-    const statusColor = dbHealth.status === 'healthy' ? '#10b981' 
-                      : dbHealth.status === 'degraded' ? '#f59e0b' 
-                      : '#ef4444'
-    
+    const dbHealth = await checkDatabaseHealth();
+    const timestamp = new Date().toISOString();
+
+    const statusColor =
+      dbHealth.status === "healthy"
+        ? "#10b981"
+        : dbHealth.status === "degraded"
+        ? "#f59e0b"
+        : "#ef4444";
+
     const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -141,7 +143,9 @@ export async function GET() {
                 </div>
                 <div class="metric">
                     <span>Environment:</span>
-                    <span class="value">${process.env.NODE_ENV || 'unknown'}</span>
+                    <span class="value">${
+                      process.env.NODE_ENV || "unknown"
+                    }</span>
                 </div>
             </div>
             
@@ -149,28 +153,48 @@ export async function GET() {
                 <h3>🗄️ Database</h3>
                 <div class="metric">
                     <span>Connection:</span>
-                    <span class="value">${dbHealth.connection.active ? 'Connected' : 'Disconnected'}</span>
+                    <span class="value">${
+                      dbHealth.connection.active ? "Connected" : "Disconnected"
+                    }</span>
                 </div>
                 <div class="metric">
                     <span>Basic Queries:</span>
-                    <span class="value">${dbHealth.queries.basic ? 'Working' : 'Failed'}</span>
+                    <span class="value">${
+                      dbHealth.queries.basic ? "Working" : "Failed"
+                    }</span>
                 </div>
-                ${dbHealth.queries.userCount !== undefined ? `
+                ${
+                  dbHealth.queries.userCount !== undefined
+                    ? `
                 <div class="metric">
                     <span>User Count:</span>
                     <span class="value">${dbHealth.queries.userCount}</span>
                 </div>
-                ` : ''}
+                `
+                    : ""
+                }
             </div>
         </div>
         
-        ${(dbHealth.connection.error || dbHealth.queries.error) ? `
+        ${
+          dbHealth.connection.error || dbHealth.queries.error
+            ? `
         <div class="error">
             <h3>⚠️ Error Details</h3>
-            ${dbHealth.connection.error ? `<p><strong>Connection:</strong> ${dbHealth.connection.error}</p>` : ''}
-            ${dbHealth.queries.error ? `<p><strong>Queries:</strong> ${dbHealth.queries.error}</p>` : ''}
+            ${
+              dbHealth.connection.error
+                ? `<p><strong>Connection:</strong> ${dbHealth.connection.error}</p>`
+                : ""
+            }
+            ${
+              dbHealth.queries.error
+                ? `<p><strong>Queries:</strong> ${dbHealth.queries.error}</p>`
+                : ""
+            }
         </div>
-        ` : ''}
+        `
+            : ""
+        }
         
         <div class="timestamp">
             Last updated: ${timestamp}<br>
@@ -178,22 +202,24 @@ export async function GET() {
         </div>
     </div>
 </body>
-</html>`
+</html>`;
 
-    const httpStatus = dbHealth.status === 'healthy' ? 200 
-                     : dbHealth.status === 'degraded' ? 200 
-                     : 503
+    const httpStatus =
+      dbHealth.status === "healthy"
+        ? 200
+        : dbHealth.status === "degraded"
+        ? 200
+        : 503;
 
     return new Response(html, {
       status: httpStatus,
       headers: {
-        'Content-Type': 'text/html',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    })
-    
+        "Content-Type": "text/html",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
+    });
   } catch (error) {
     const errorHtml = `
 <!DOCTYPE html>
@@ -210,16 +236,18 @@ export async function GET() {
 <body>
     <div class="error">
         <h1>🚨 Health Check Failed</h1>
-        <p><strong>Error:</strong> ${error instanceof Error ? error.message : 'Unknown error'}</p>
+        <p><strong>Error:</strong> ${
+          error instanceof Error ? error.message : "Unknown error"
+        }</p>
         <p><strong>Time:</strong> ${new Date().toISOString()}</p>
         <button onclick="window.location.reload()">Retry</button>
     </div>
 </body>
-</html>`
+</html>`;
 
     return new Response(errorHtml, {
       status: 500,
-      headers: { 'Content-Type': 'text/html' }
-    })
+      headers: { "Content-Type": "text/html" },
+    });
   }
 }
