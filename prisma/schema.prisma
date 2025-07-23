@@ -1,0 +1,184 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  MANAGER
+  VICE_MANAGER
+  ADMIN
+}
+
+enum DonationType {
+  COMPULSORY
+  NON_COMPULSORY
+}
+
+enum PaymentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  firstName     String?
+  lastName      String?
+  phone         String?
+  role          UserRole  @default(USER)
+  resetToken    String?
+  resetTokenExpiry DateTime?
+  dateOfBirth   DateTime?
+  education     String?
+  maritalStatus String?
+  address1      String?
+  address2      String?
+  city          String?
+  state         String?
+  country       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts         Account[]
+  sessions         Session[]
+  payments         Payment[]
+  approvedPayments Payment[] @relation("ApprovedPayments")
+  managedDonations Donation[] @relation("ManagerDonations")
+  viceManagerDonations Donation[] @relation("ViceManagerDonations")
+  notifications    Notification[]
+  userDonations    UserDonation[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Donation {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  type         DonationType @default(NON_COMPULSORY)
+  year         Int?
+  dueDate      DateTime?
+  managerId    String
+  viceManagerId String?
+  paid         Boolean      @default(false)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  manager     User @relation("ManagerDonations", fields: [managerId], references: [id])
+  viceManager User? @relation("ViceManagerDonations", fields: [viceManagerId], references: [id])
+  payments    Payment[]
+  userDonations UserDonation[]
+
+  @@map("donations")
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  amount      Decimal
+  paymentDate DateTime
+  description String?
+  donationId  String
+  userId      String
+  status      PaymentStatus @default(PENDING)
+  receiptUrl  String?
+  invoiceUrl  String?
+  notes       String?
+  approvedAt  DateTime?
+  approvedById String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  donation    Donation @relation(fields: [donationId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+  approvedBy  User?    @relation("ApprovedPayments", fields: [approvedById], references: [id])
+
+  @@map("payments")
+}
+
+enum NotificationType {
+  PAYMENT_APPROVED
+  PAYMENT_REJECTED
+  DONATION_CREATED
+  DONATION_UPDATED
+  SYSTEM_ANNOUNCEMENT
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  data      Json?
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model UserDonation {
+  id           String   @id @default(cuid())
+  userId       String
+  donationId   String
+  targetAmount Decimal?
+  paid         Boolean  @default(false)
+
+  user     User     @relation(fields: [userId], references: [id])
+  donation Donation @relation(fields: [donationId], references: [id])
+
+  @@unique([userId, donationId])
+  @@map("user_donations")
+}
