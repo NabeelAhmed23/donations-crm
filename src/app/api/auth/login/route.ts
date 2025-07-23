@@ -1,4 +1,5 @@
-import { generateToken, verifyPassword } from "@/lib/auth-utils";
+import { verifyPassword } from "@/lib/password-utils";
+import { generateToken } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";

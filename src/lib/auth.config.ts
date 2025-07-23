@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import bcryptjs from "bcryptjs";
+import { verifyPassword } from "@/lib/password-utils";
 import { z } from "zod";
 
 const loginSchema = z.object({
@@ -31,7 +31,7 @@ export default {
             return null;
           }
 
-          const isValid = await bcryptjs.compare(password, user.password);
+          const isValid = await verifyPassword(password, user.password);
 
           if (!isValid) {
             return null;

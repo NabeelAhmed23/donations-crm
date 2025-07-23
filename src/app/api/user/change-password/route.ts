@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
+import { hashPassword, verifyPassword } from "@/lib/password-utils";
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
@@ -37,7 +37,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isCurrentPasswordValid = await verifyPassword(currentPassword, user.password);
     if (!isCurrentPasswordValid) {
       return NextResponse.json(
         { error: "Current password is incorrect" },
@@ -46,7 +46,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Hash the new password
-    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+    const hashedNewPassword = await hashPassword(newPassword);
 
     // Update the password
     await prisma.user.update({
