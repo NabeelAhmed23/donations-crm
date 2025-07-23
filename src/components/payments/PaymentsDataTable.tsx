@@ -371,7 +371,6 @@ export function PaymentsDataTable({
           }
           onChange={(event) => {
             table.getColumn("donation")?.setFilterValue(event.target.value);
-            console.log(table.getColumn("donation")?.getFilterValue());
           }}
           className="max-w-sm"
         />
