@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
 
     // Build where clause for donations
-    const donationWhereClause: any = {
+    const donationWhereClause: {
+      isActive: boolean;
+      year?: number;
+      type?: string;
+    } = {
       isActive: true,
     };
     

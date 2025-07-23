@@ -55,7 +55,7 @@ export default function ForgotPasswordPage() {
         const result = await response.json()
         toast.error(result.error || 'Failed to send reset email')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
             Forgot your password?
           </h1>
           <p className="text-sm text-muted-foreground">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 

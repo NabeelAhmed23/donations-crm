@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +39,7 @@ export default function AdminUsersPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
+  const checkAccessAndFetch = useCallback(() => {
     if (status === "loading") return;
     
     if (!session?.user || session.user.role !== "ADMIN") {
@@ -48,9 +48,13 @@ export default function AdminUsersPage() {
     }
 
     fetchUsers();
-  }, [session, status, router]);
+  }, [session, status, router, fetchUsers]);
 
-  const fetchUsers = async () => {
+  useEffect(() => {
+    checkAccessAndFetch();
+  }, [checkAccessAndFetch]);
+
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await fetch("/api/users");
       
@@ -71,7 +75,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   const handleEditUser = (user: User) => {
     router.push(`/dashboard/admin/users/${user.id}`);

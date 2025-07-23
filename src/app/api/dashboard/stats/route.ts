@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
     const donationId = searchParams.get("donationId");
 
     // Build the base where clause for user donations
-    const userDonationWhere: any = {
+    const userDonationWhere: {
+      userId: string;
+      donation: { isActive: boolean };
+      donationId?: string;
+    } = {
       userId: session.user.id,
       donation: {
         isActive: true
@@ -84,7 +88,7 @@ export async function GET(request: NextRequest) {
       pendingApproval,
       userPayments: userPaymentsCount,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

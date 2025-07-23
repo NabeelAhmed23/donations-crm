@@ -429,7 +429,7 @@ export function PaymentsDataTable({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell, idx) => (
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
                       // className={idx !== 0 ? "px-4" : ""}

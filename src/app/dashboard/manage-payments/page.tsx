@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -42,7 +42,7 @@ export default function ManagePaymentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
+  const checkAccessAndFetch = useCallback(() => {
     if (status === "loading") return;
 
     if (!session?.user || !["MANAGER", "VICE_MANAGER", "ADMIN"].includes(session.user.role)) {
@@ -51,9 +51,13 @@ export default function ManagePaymentsPage() {
     }
 
     fetchPendingPayments();
-  }, [session, status, router]);
+  }, [session, status, router, fetchPendingPayments]);
 
-  const fetchPendingPayments = async () => {
+  useEffect(() => {
+    checkAccessAndFetch();
+  }, [checkAccessAndFetch]);
+
+  const fetchPendingPayments = useCallback(async () => {
     try {
       const response = await fetch("/api/payments/pending");
 
@@ -74,7 +78,7 @@ export default function ManagePaymentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
   const handleApproval = async (paymentId: string, action: "approve" | "reject", notes?: string) => {
     setProcessingPaymentId(paymentId);
@@ -92,7 +96,7 @@ export default function ManagePaymentsPage() {
         throw new Error(errorData.error || `Failed to ${action} payment`);
       }
 
-      const updatedPayment = await response.json();
+      await response.json();
       
       // Remove the payment from the list since it's no longer pending
       setPayments(prev => prev.filter(payment => payment.id !== paymentId));

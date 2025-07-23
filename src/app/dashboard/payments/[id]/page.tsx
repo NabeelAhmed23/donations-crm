@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,7 +45,7 @@ interface Payment {
 export default function PaymentDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
+  useSession();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
@@ -53,11 +53,7 @@ export default function PaymentDetailPage() {
 
   const paymentId = params.id as string;
 
-  useEffect(() => {
-    fetchPayment();
-  }, [paymentId]);
-
-  const fetchPayment = async () => {
+  const fetchPayment = useCallback(async () => {
     try {
       const response = await fetch(`/api/payments/${paymentId}`);
       if (response.ok) {
@@ -67,13 +63,17 @@ export default function PaymentDetailPage() {
         toast.error("Payment not found");
         router.push("/dashboard/payments");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error fetching payment details");
       router.push("/dashboard/payments");
     } finally {
       setLoading(false);
     }
-  };
+  }, [paymentId, router]);
+
+  useEffect(() => {
+    fetchPayment();
+  }, [fetchPayment]);
 
   const generatePDF = async () => {
     if (!payment || !receiptRef.current) return;
@@ -108,7 +108,7 @@ export default function PaymentDetailPage() {
 
       pdf.save(`payment-receipt-${payment.id}.pdf`);
       toast.success("Receipt downloaded successfully");
-    } catch (error) {
+    } catch {
       toast.error("Error generating PDF");
     } finally {
       setGenerating(false);

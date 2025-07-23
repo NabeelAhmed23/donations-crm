@@ -89,7 +89,11 @@ export async function GET(request: NextRequest) {
 
     // Get recent donations created by current user (for managers/admins)
     if (['ADMIN', 'MANAGER', 'VICE_MANAGER'].includes(currentUser.role)) {
-      const donationWhere: any = {
+      const donationWhere: {
+        managerId: string;
+        createdAt: { gte: Date };
+        id?: string;
+      } = {
         managerId: session.user.id,
         createdAt: {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),

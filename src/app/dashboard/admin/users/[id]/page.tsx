@@ -98,20 +98,7 @@ export default function EditUserPage() {
     },
   });
 
-  useEffect(() => {
-    if (status === "loading") return;
-
-    if (!session?.user || session.user.role !== "ADMIN") {
-      router.push("/dashboard");
-      return;
-    }
-
-    if (userId) {
-      fetchUser();
-    }
-  }, [session, status, router, userId]);
-
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     try {
       const response = await fetch(`/api/users/${userId}`);
 
@@ -157,7 +144,20 @@ export default function EditUserPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, router, form]);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session?.user || session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+
+    if (userId) {
+      fetchUser();
+    }
+  }, [session, status, router, userId, fetchUser]);
 
   const onSubmit = async (data: UserUpdateForm) => {
     setSaving(true);

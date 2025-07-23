@@ -33,14 +33,14 @@ export default function DonationTableRow({
   const handleEdit = () => {
     try {
       onEdit(donation);
-    } catch (e) {
+    } catch {
       // Optionally log error
     }
   };
   const handleDelete = () => {
     try {
       onDelete(donation);
-    } catch (e) {
+    } catch {
       // Optionally log error
     }
   };

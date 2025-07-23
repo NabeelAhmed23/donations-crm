@@ -54,6 +54,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...submitData } = data
       const response = await fetch('/api/auth/register', {
         method: 'POST',
@@ -85,7 +86,7 @@ export default function RegisterPage() {
       } else {
         toast.error(result.error || 'Registration failed')
       }
-    } catch (error) {
+    } catch {
       toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)

@@ -1,7 +1,7 @@
 "use client";
 
 import { Donation } from "@/types/donation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 interface Manager {
@@ -27,7 +27,7 @@ export function useDonations(filterYear: string, filterType: string) {
   const [managers, setManagers] = useState<Manager[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchDonations = async () => {
+  const fetchDonations = useCallback(async () => {
     try {
       const params = new URLSearchParams();
       if (filterYear) params.append("year", filterYear);
@@ -40,12 +40,12 @@ export function useDonations(filterYear: string, filterType: string) {
       } else {
         toast.error("Failed to fetch donations");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error fetching donations");
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterYear, filterType]);
 
   const fetchManagers = async () => {
     try {
@@ -90,7 +90,7 @@ export function useDonations(filterYear: string, filterType: string) {
         toast.error(error.error || "Failed to create donation");
         return false;
       }
-    } catch (error) {
+    } catch {
       toast.error("Error creating donation");
       return false;
     }
@@ -128,7 +128,7 @@ export function useDonations(filterYear: string, filterType: string) {
         toast.error(error.error || "Failed to update donation");
         return false;
       }
-    } catch (error) {
+    } catch {
       toast.error("Error updating donation");
       return false;
     }
@@ -153,7 +153,7 @@ export function useDonations(filterYear: string, filterType: string) {
         toast.error(error.error || "Failed to delete donation");
         return false;
       }
-    } catch (error) {
+    } catch {
       toast.error("Error deleting donation");
       return false;
     }
@@ -162,7 +162,7 @@ export function useDonations(filterYear: string, filterType: string) {
   useEffect(() => {
     fetchDonations();
     fetchManagers();
-  }, [filterYear, filterType]);
+  }, [fetchDonations]);
 
   return {
     donations,

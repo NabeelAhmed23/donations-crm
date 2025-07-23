@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSession, getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -64,40 +64,40 @@ export function AccountForm() {
     },
   });
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("/api/user/profile");
-        if (response.ok) {
-          const userData = await response.json();
-          form.reset({
-            firstName: userData.firstName || "",
-            lastName: userData.lastName || "",
-            phone: userData.phone || "",
-            dateOfBirth: userData.dateOfBirth
-              ? userData.dateOfBirth.split("T")[0]
-              : "",
-            education: userData.education || "",
-            maritalStatus: userData.maritalStatus || "",
-            address1: userData.address1 || "",
-            address2: userData.address2 || "",
-            city: userData.city || "",
-            state: userData.state || "",
-            country: userData.country || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-        toast.error("Failed to load account information");
-      } finally {
-        setLoading(false);
+  const fetchUserData = useCallback(async () => {
+    try {
+      const response = await fetch("/api/user/profile");
+      if (response.ok) {
+        const userData = await response.json();
+        form.reset({
+          firstName: userData.firstName || "",
+          lastName: userData.lastName || "",
+          phone: userData.phone || "",
+          dateOfBirth: userData.dateOfBirth
+            ? userData.dateOfBirth.split("T")[0]
+            : "",
+          education: userData.education || "",
+          maritalStatus: userData.maritalStatus || "",
+          address1: userData.address1 || "",
+          address2: userData.address2 || "",
+          city: userData.city || "",
+          state: userData.state || "",
+          country: userData.country || "",
+        });
       }
-    };
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error("Failed to load account information");
+    } finally {
+      setLoading(false);
+    }
+  }, [form]);
 
+  useEffect(() => {
     if (session?.user) {
       fetchUserData();
     }
-  }, [session, form]);
+  }, [session, fetchUserData]);
 
   const onSubmit = async (data: AccountFormData) => {
     setSubmitting(true);
