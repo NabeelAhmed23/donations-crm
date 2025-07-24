@@ -1,15 +1,21 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { CheckCircle } from 'lucide-react'
+import { useState } from "react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { CheckCircle } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -17,50 +23,50 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Please enter a valid email')
-})
+  email: z.email("Please enter a valid email"),
+});
 
-type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>
+type ForgotPasswordForm = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPasswordPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   const form = useForm<ForgotPasswordForm>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
-      email: '',
+      email: "",
     },
-  })
+  });
 
   const onSubmit = async (data: ForgotPasswordForm) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
-      })
+        body: JSON.stringify(data),
+      });
 
       if (response.ok) {
-        setIsSubmitted(true)
-        toast.success('Reset link sent to your email!')
+        setIsSubmitted(true);
+        toast.success("Reset link sent to your email!");
       } else {
-        const result = await response.json()
-        toast.error(result.error || 'Failed to send reset email')
+        const result = await response.json();
+        toast.error(result.error || "Failed to send reset email");
       }
     } catch {
-      toast.error('An unexpected error occurred')
+      toast.error("An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (isSubmitted) {
     return (
@@ -73,20 +79,19 @@ export default function ForgotPasswordPage() {
               </div>
               <CardTitle>Check your email</CardTitle>
               <CardDescription>
-                If an account with that email exists, we have sent a password reset link.
+                If an account with that email exists, we have sent a password
+                reset link.
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
               <Button asChild variant="outline" className="w-full">
-                <Link href="/login">
-                  Back to login
-                </Link>
+                <Link href="/login">Back to login</Link>
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -97,20 +102,26 @@ export default function ForgotPasswordPage() {
             Forgot your password?
           </h1>
           <p className="text-sm text-muted-foreground">
-            Enter your email address and we&apos;ll send you a link to reset your password.
+            Enter your email address and we&apos;ll send you a link to reset
+            your password.
           </p>
         </div>
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Reset Password</CardTitle>
+            <CardTitle className="text-2xl text-center">
+              Reset Password
+            </CardTitle>
             <CardDescription className="text-center">
               Enter your email to receive a reset link
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="email"
@@ -137,7 +148,7 @@ export default function ForgotPasswordPage() {
                       <span>Sending...</span>
                     </div>
                   ) : (
-                    'Send reset link'
+                    "Send reset link"
                   )}
                 </Button>
               </form>
@@ -146,7 +157,7 @@ export default function ForgotPasswordPage() {
         </Card>
 
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Remember your password?{' '}
+          Remember your password?{" "}
           <Link
             href="/login"
             className="underline underline-offset-4 hover:text-primary"
@@ -156,5 +167,5 @@ export default function ForgotPasswordPage() {
         </p>
       </div>
     </div>
-  )
+  );
 }
