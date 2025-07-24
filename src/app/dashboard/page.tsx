@@ -65,9 +65,10 @@ export default function Dashboard() {
     const fetchStats = async () => {
       setLoading(true);
       try {
-        const url = selectedDonation === "all" 
-          ? "/api/dashboard/stats" 
-          : `/api/dashboard/stats?donationId=${selectedDonation}`;
+        const url =
+          selectedDonation === "all"
+            ? "/api/dashboard/stats"
+            : `/api/dashboard/stats?donationId=${selectedDonation}`;
         const response = await fetch(url);
         if (response.ok) {
           const data = await response.json();
@@ -144,7 +145,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Welcome header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
@@ -183,11 +184,7 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {loading ? (
-                    <Skeleton className="h-8 w-20" />
-                  ) : (
-                    card.value
-                  )}
+                  {loading ? <Skeleton className="h-8 w-20" /> : card.value}
                 </div>
               </CardContent>
             </Card>
