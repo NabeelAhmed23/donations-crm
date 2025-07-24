@@ -4,7 +4,7 @@ import PasswordResetForm from "@/components/reset-password/PasswordResetForm";
 export default async function ResetPassword({
   searchParams,
 }: {
-  searchParams: { token: string; email: string };
+  searchParams: Promise<{ token: string; email: string }>;
 }) {
   const { token, email } = await searchParams;
 
